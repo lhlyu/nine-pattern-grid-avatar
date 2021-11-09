@@ -7,5 +7,5 @@ func TestNewGroupAvatar(t *testing.T) {
 		"http://xx1.jpg",
 		"http://xx2.jpg",
 	})
-	g.Call()
+	t.Log(g.Call())
 }

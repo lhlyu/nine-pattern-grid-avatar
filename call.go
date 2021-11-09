@@ -15,23 +15,22 @@ const (
 	// 每个头像之间的间隙
 	avatar_gap = 0
 	// 群头像的边长
-	group_avatar_size = user_avatar_size * 3 + avatar_gap * 2
+	group_avatar_size = user_avatar_size*3 + avatar_gap*2
 
 	// 群头像命名规则
 	group_avatar_name = "group/avatar/%s_%s.jpg"
-
 )
 
 type groupAvatar struct {
 	name string
 	// 图片地址
-	imgs []string
+	imgs   []string
 	images []image.Image
 	points []image.Point
-	out image.Image
+	out    image.Image
 }
 
-func NewGroupAvatar(name string,imgs []string) *groupAvatar {
+func NewGroupAvatar(name string, imgs []string) *groupAvatar {
 	return &groupAvatar{
 		name: name,
 		imgs: imgs,
@@ -40,10 +39,10 @@ func NewGroupAvatar(name string,imgs []string) *groupAvatar {
 
 // 生成群头像, 返回地址
 func (g *groupAvatar) Call() string {
-	if len(g.imgs) == 0{
+	if len(g.imgs) == 0 {
 		return ""
 	}
-	// 下载图片
+	// 从阿里云oss下载图片
 	if !g.downloadImages() {
 		return ""
 	}
@@ -60,24 +59,22 @@ func (g *groupAvatar) Call() string {
 		return ""
 	}
 
-	// 上传图片
+	// 资源
 	objectKey := fmt.Sprintf(group_avatar_name, g.name, time.Now().Format("060102150405"))
 
 	buf := &bytes.Buffer{}
 
-	if err := jpeg.Encode(buf,g.out, nil);err != nil{
-		log.Println("Call Encode ",g.name, err)
+	if err := jpeg.Encode(buf, g.out, nil); err != nil {
+		log.Println("Call Encode ", g.name, err)
 		return ""
 	}
 
-	if err := uploadObject(objectKey, buf);err != nil{
-		log.Println("Call uploadObject ",g.name, err)
+	// 上传图片到阿里云oss
+	if err := uploadObject(objectKey, buf); err != nil {
+		log.Println("Call uploadObject ", g.name, err)
 		return ""
 	}
 
+	// 获取访问地址
 	return getImageUrl(objectKey)
 }
-
-
-
-
